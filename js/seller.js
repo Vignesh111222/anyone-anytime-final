@@ -553,14 +553,31 @@ window.saveInventory = (id) => {
 
 // Replaced by window._doDelete which is triggered by the custom modal
 window.deleteProduct = (id) => {
-    const p = allProducts.find(x => x.id === id);
+    const p = allProducts.find(x => String(x.id) === String(id));
     if (!p) return;
-    
-    if (window.openDeleteModal) {
-        window.openDeleteModal(p.id, p.name);
-    }
-};
 
+    const confirmed = confirm(`Delete "${p.name}"?`);
+
+    if (!confirmed) return;
+
+    fetch(`${API_BASE}/api/products/${id}`, {
+        method: 'DELETE'
+    })
+    .then(res => {
+        if (!res.ok) {
+            throw new Error('Failed to delete product');
+        }
+        return res.json();
+    })
+    .then(() => {
+        alert(`${p.name} deleted successfully.`);
+        return fetchData(true);
+    })
+    .catch(err => {
+        console.error(err);
+        alert(err.message);
+    });
+};
 window._doDelete = (id) => {
     fetch(`${API_BASE}/api/products/${id}`, {
         method: 'DELETE'
