@@ -58,7 +58,9 @@ class CartStore {
             this.removeItem(productId);
             return;
         }
-        const item = this.items.find(item => item.product_id === productId);
+        const item = this.items.find(
+    item => String(item.product_id) === String(productId)
+);
         if (item) {
             item.quantity = quantity;
             this.notify();
