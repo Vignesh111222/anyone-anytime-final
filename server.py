@@ -152,6 +152,7 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                     "category": data.get("category", ""),
                     "available": data.get("available", True),
                     "stock_quantity": data.get("stock_quantity", 0),
+                    "deleted": data.get("deleted"),
                 }
                 if not product["name"]:
                     send_json(self, {"error": "Product name is required"}, 400)
