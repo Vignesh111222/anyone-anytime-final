@@ -128,7 +128,9 @@ function attachEvents() {
         btn.addEventListener('click', (e) => {
             const id = e.currentTarget.dataset.id;
             const change = parseInt(e.currentTarget.dataset.change);
-            const item = cartStore.items.find(i => i.product_id === id);
+            const item = cartStore.items.find(
+    i => String(i.product_id) === String(id)
+);
             if (item) {
                 cartStore.updateQuantity(id, item.quantity + change);
                 updatePage();
