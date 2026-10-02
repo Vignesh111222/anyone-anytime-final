@@ -91,7 +91,11 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
             if path == "/api/products":
                 rows = supabase_request(
                     "GET", "products",
-                    query={"select": "*", "order": "created_at.asc"}
+                    query={
+                        "select": "*",
+                        "deleted": "eq.false",
+                        "order": "created_at.asc",
+                    },
                 )
                 send_json(self, rows)
                 return
@@ -99,12 +103,12 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
             if path == "/api/orders":
                 orders = supabase_request(
                     "GET", "orders",
-                    query={"select": "*", "order": "created_at.desc"}
+                    query={"select": "*", "order": "created_at.desc"},
                 )
                 for order in orders:
                     order["items"] = supabase_request(
                         "GET", "order_items",
-                        query={"order_id": f"eq.{order['id']}", "select": "*"}
+                        query={"order_id": f"eq.{order['id']}", "select": "*"},
                     )
                 send_json(self, orders)
                 return
@@ -113,14 +117,14 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                 order_id = path.split("/")[-1]
                 order = first(supabase_request(
                     "GET", "orders",
-                    query={"id": f"eq.{order_id}", "select": "*", "limit": "1"}
+                    query={"id": f"eq.{order_id}", "select": "*", "limit": "1"},
                 ))
                 if not order:
                     send_json(self, {"error": "Order not found"}, 404)
                     return
                 order["items"] = supabase_request(
                     "GET", "order_items",
-                    query={"order_id": f"eq.{order_id}", "select": "*"}
+                    query={"order_id": f"eq.{order_id}", "select": "*"},
                 )
                 send_json(self, order)
                 return
@@ -152,7 +156,7 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                     "category": data.get("category", ""),
                     "available": data.get("available", True),
                     "stock_quantity": data.get("stock_quantity", 0),
-                    "deleted": data.get("deleted"),
+                    "deleted": data.get("deleted", False),
                 }
                 if not product["name"]:
                     send_json(self, {"error": "Product name is required"}, 400)
@@ -184,7 +188,7 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                 order_id = order["id"]
                 order["items"] = supabase_request(
                     "GET", "order_items",
-                    query={"order_id": f"eq.{order_id}", "select": "*"}
+                    query={"order_id": f"eq.{order_id}", "select": "*"},
                 )
                 send_json(self, order, 201)
                 return
@@ -206,7 +210,7 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
 
                 allowed = {
                     "received", "preparing", "out_for_delivery",
-                    "delivered", "cancelled"
+                    "delivered", "cancelled",
                 }
                 if status not in allowed:
                     send_json(self, {"error": "Invalid status"}, 400)
@@ -217,14 +221,17 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                     "p_status": status,
                     "p_reason": reason or None,
                 })
-                send_json(self, first(result) if isinstance(result, list) and result else {"status": "success"})
+                send_json(
+                    self,
+                    first(result) if isinstance(result, list) and result else {"status": "success"},
+                )
                 return
 
             if path.startswith("/api/products/"):
                 product_id = path.split("/")[-1]
                 allowed_fields = {
                     "name", "description", "price", "cost_price",
-                    "image", "category", "available", "stock_quantity","deleted"
+                    "image", "category", "available", "stock_quantity", "deleted",
                 }
                 update = {k: data[k] for k in allowed_fields if k in data}
 
@@ -235,7 +242,7 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
 
                 updated = supabase_request(
                     "PATCH", "products", update,
-                    query={"id": f"eq.{product_id}"}
+                    query={"id": f"eq.{product_id}"},
                 )
                 if not updated:
                     send_json(self, {"error": "Product not found"}, 404)
@@ -255,7 +262,7 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                 product_id = path.split("/")[-1]
                 deleted = supabase_request(
                     "DELETE", "products",
-                    query={"id": f"eq.{product_id}"}
+                    query={"id": f"eq.{product_id}"},
                 )
                 if not deleted:
                     send_json(self, {"error": "Product not found"}, 404)
@@ -281,3 +288,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
