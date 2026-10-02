@@ -43,7 +43,7 @@ window._doReject = (id, reason) => {
 };
 
 function updateProductAvailability(id, available, stock) {
-    const p = allProducts.find(x => x.id === id);
+    const p = allProducts.find(x => String(x.id) === String(productId));
     if (!p) return;
     p.available = available;
     p.stock_quantity = stock;
@@ -93,7 +93,7 @@ function renderSummary() {
 }
 
 function getProductName(id) {
-    const p = allProducts.find(x => x.id === id);
+    const p = allProducts.find(x => String(x.id) === String(id));
     return p ? p.name : 'Unknown';
 }
 
@@ -529,7 +529,7 @@ window.changeProductImage = async (productId, input) => {
 };
 
 window.saveInventory = (id) => {
-    const p = allProducts.find(x => x.id === id);
+    const p = allProducts.find(x => String(x.id) === String(id));;
     if (!p) return;
     
     const stockEl = document.getElementById(`stock-${id}`);
