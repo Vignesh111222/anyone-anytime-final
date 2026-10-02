@@ -1,6 +1,6 @@
 // API Configuration
 // Production backend is served by the same Render Python service.
-const BACKEND_URL = 'https://projects-2-s7ee.onrender.com';
+const BACKEND_URL = 'https://anyone-anytime-final.onrender.com';
 
 const host = window.location.hostname;
 const isLocal =
