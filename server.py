@@ -224,7 +224,7 @@ class APIHandler(http.server.SimpleHTTPRequestHandler):
                 product_id = path.split("/")[-1]
                 allowed_fields = {
                     "name", "description", "price", "cost_price",
-                    "image", "category", "available", "stock_quantity"
+                    "image", "category", "available", "stock_quantity","deleted"
                 }
                 update = {k: data[k] for k in allowed_fields if k in data}
 
