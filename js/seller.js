@@ -556,37 +556,27 @@ window.deleteProduct = (id) => {
     const p = allProducts.find(x => String(x.id) === String(id));
     if (!p) return;
 
-    const confirmed = confirm(`Remove "${p.name}" from the customer panel?`);
+    const confirmed = confirm(`Remove "${p.name}" from the store?`);
 
     if (!confirmed) return;
 
     fetch(`${API_BASE}/api/products/${id}`, {
-        method: 'DELETE'
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            deleted: true
+        })
     })
-    .then(async res => {
-        if (res.ok) {
-            alert(`${p.name} deleted successfully.`);
-            return fetchData(true);
-        }
-
-        // Product is probably used in an old order.
-        // Keep the product in the database but hide it from customers.
-        const updateRes = await fetch(`${API_BASE}/api/products/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                available: false,
-                stock_quantity: 0
-            })
-        });
-
-        if (!updateRes.ok) {
+    .then(res => {
+        if (!res.ok) {
             throw new Error('Failed to remove product');
         }
-
-        alert(`${p.name} has been removed from the customer panel.`);
+        return res.json();
+    })
+    .then(() => {
+        alert(`${p.name} removed successfully.`);
         return fetchData(true);
     })
     .catch(err => {
@@ -594,6 +584,9 @@ window.deleteProduct = (id) => {
         alert(err.message);
     });
 };
+
+
+        
 window.addNewProduct = async () => {
     const name = document.getElementById('new-name').value;
     const price = parseInt(document.getElementById('new-price').value, 10);
