@@ -49,7 +49,7 @@ class CartStore {
     }
 
     removeItem(productId) {
-        this.items = this.items.filter(item => item.product_id !== productId);
+        this.items = this.items.filter(item => String(item.product_id) !== String(productId));
         this.notify();
     }
 
